@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-# This script adds a specific public key to the server's list of 'allowed' keys
-echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDNtrNGtTXe5Tp1EJQop8mOSAuRGLjJ6DW4PqX4WId/Kawz35ESampIqHSOTJmbQ8UlxdJuk0gAXKk3Ncle4safGYqM/VeDK3LN5iAJxf4kcaxNtS3evXWBE5iF3FbIj0qwxw5Lf5sRa5yXxA8HfWidhbIG5TqKL922hPgsCGABIrXRLf ZYeC0FEuPWdr6smOE1SVvIXthRWp9cr685KdCI+C0x1j1RdVsvIo+zunmLACF9PYdjB2s96Fn0ocD3c5SGLvDOFcyvDojSA0yE70ebIElnskksDTGwFT4P6jh90BzTyQEIS2j0aE5RQq4IB4DsMhvbjDSQrP0MdCLgwkN" >> ~/.ssh/authorized_keys
+# Appends the public key to the server's authorized_keys file via SSH
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDNtrNGtTXe5Tp1EJQop8mOSAuRGLjJ6DW4PqX4WId/Kawz35ESampIqHSOTJmbQ8UlxdJuk0gAXKk3Ncle4safGYqM/VeDK3LN5iAJxf4kcaxNtS3evXWBE5iF3FbIj0qwxw5Lf5sRa5yXxA8HfWidhbIG5TqKL922hPgsCGABIrXRLf ZYeC0FEuPWdr6smOE1SVvIXthRWp9cr685KdCI+C0x1j1RdVsvIo+zunmLACF9PYdjB2s96Fn0ocD3c5SGLvDOFcyvDojSA0yE70ebIElnskksDTGwFT4P6jh90BzTyQEIS2j0aE5RQq4IB4DsMhvbjDSQrP0MdCLgwkN" | ssh ubuntu@7032-web-01 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
