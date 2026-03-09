@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Installs and configures Nginx on a new Ubuntu machine
+
+apt-get update -y
+apt-get install -y nginx
+
+# Set the default index page to return "Holberton School"
+echo "Holberton School" > /var/www/html/index.html
+
+# Ensure Nginx is running
+service nginx start
