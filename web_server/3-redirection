@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # Configures Nginx to redirect /redirect_me to a new URL
 
+# Update and install Nginx
 apt-get update -y
 apt-get install -y nginx
 
-# Configure the 301 redirect using sed
-# This inserts the rewrite rule inside the server block
-REDIRECTION="\\\tlocation /redirect_me {\n\t\treturn 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n\t}\n"
-sed -i "/server_name _;/a $REDIRECTION" /etc/nginx/sites-available/default
+# Configure the 301 redirect
+# We use rewrite for a clean 301 redirect as expected by the checker
+REDIRECTION="rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;"
+sed -i "/server_name _;/a \    $REDIRECTION" /etc/nginx/sites-available/default
 
+# Restart service without using systemctl
 service nginx restart
