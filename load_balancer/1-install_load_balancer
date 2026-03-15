@@ -7,15 +7,12 @@ sudo apt-get update
 # Install HAProxy
 sudo apt-get install -y haproxy
 
-# Get the student ID from hostname or use default
-STUDENT_ID="7032"
-
-# Define backend servers
-WEB01="${STUDENT_ID}-web-01"
-WEB02="${STUDENT_ID}-web-02"
+# Define the backend servers
+WEB01="web-01"
+WEB02="web-02"
 
 # Create HAProxy configuration
-cat << EOF | sudo tee /etc/haproxy/haproxy.cfg
+sudo tee /etc/haproxy/haproxy.cfg > /dev/null << 'EOF'
 global
     log /dev/log    local0
     log /dev/log    local1 notice
@@ -26,11 +23,9 @@ global
     group haproxy
     daemon
 
-    # Default SSL material locations
     ca-base /etc/ssl/certs
     crt-base /etc/ssl/private
 
-    # Default ciphers to use on SSL-enabled listening sockets
     ssl-default-bind-ciphers kEECDH+aRSA+AES:kRSA+AES:+AES256:RC4-SHA:!kEDH:!LOW:!EXP:!MD5:!aNULL:!eNULL
     ssl-default-bind-options no-sslv3
 
@@ -56,12 +51,12 @@ frontend http_front
 
 backend http_back
     balance roundrobin
-    server ${WEB01} ${WEB01}:80 check
-    server ${WEB02} ${WEB02}:80 check
+    server web-01 web-01:80 check
+    server web-02 web-02:80 check
 EOF
 
-# Enable HAProxy to start on boot via init script
-echo "ENABLED=1" | sudo tee -a /etc/default/haproxy
+# Enable HAProxy service
+sudo systemctl enable haproxy
 
 # Test HAProxy configuration
 sudo haproxy -c -f /etc/haproxy/haproxy.cfg
@@ -69,12 +64,12 @@ sudo haproxy -c -f /etc/haproxy/haproxy.cfg
 # Restart HAProxy service
 sudo service haproxy restart
 
-# Enable HAProxy service
-sudo update-rc.d haproxy defaults
+# Display configuration information
+echo "HAProxy load balancer configured successfully"
+echo "Backend servers configured:"
+echo "  - web-01"
+echo "  - web-02"
+echo "Load balancing algorithm: roundrobin"
 
 # Verify HAProxy is running
-echo "Checking HAProxy status..."
 sudo service haproxy status
-
-echo "HAProxy installation and configuration complete!"
-echo "Load balancing between ${WEB01} and ${WEB02} using roundrobin algorithm"
