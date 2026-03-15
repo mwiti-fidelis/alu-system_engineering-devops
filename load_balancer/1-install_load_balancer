@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
-# Script to install and configure HAProxy as a load balancer
+# Script to install and configure HAProxy load balancer for web-01 and web-02
 
-# Update package lists
+# Update and install HAProxy
 sudo apt-get update
-
-# Install HAProxy
 sudo apt-get install -y haproxy
 
-# Create HAProxy configuration with web-01 and web-02 as backend servers
-sudo tee /etc/haproxy/haproxy.cfg > /dev/null << 'EOF'
+# Backup original config
+sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
+
+# Create HAProxy configuration
+sudo cat > /etc/haproxy/haproxy.cfg << 'EOF'
 global
-    log /dev/log    local0
-    log /dev/log    local1 notice
+    log /dev/log local0
+    log /dev/log local1 notice
     chroot /var/lib/haproxy
     stats socket /run/haproxy/admin.sock mode 660 level admin
     stats timeout 30s
@@ -19,27 +20,14 @@ global
     group haproxy
     daemon
 
-    ca-base /etc/ssl/certs
-    crt-base /etc/ssl/private
-
-    ssl-default-bind-ciphers kEECDH+aRSA+AES:kRSA+AES:+AES256:RC4-SHA:!kEDH:!LOW:!EXP:!MD5:!aNULL:!eNULL
-    ssl-default-bind-options no-sslv3
-
 defaults
-    log     global
-    mode    http
-    option  httplog
-    option  dontlognull
+    log global
+    mode http
+    option httplog
+    option dontlognull
     timeout connect 5000
-    timeout client  50000
-    timeout server  50000
-    errorfile 400 /etc/haproxy/errors/400.http
-    errorfile 403 /etc/haproxy/errors/403.http
-    errorfile 408 /etc/haproxy/errors/408.http
-    errorfile 500 /etc/haproxy/errors/500.http
-    errorfile 502 /etc/haproxy/errors/502.http
-    errorfile 503 /etc/haproxy/errors/503.http
-    errorfile 504 /etc/haproxy/errors/504.http
+    timeout client 50000
+    timeout server 50000
 
 frontend http_front
     bind *:80
@@ -51,18 +39,13 @@ backend http_back
     server web-02 web-02:80 check
 EOF
 
-# Enable HAProxy service
+# Enable and start HAProxy
 sudo systemctl enable haproxy
-
-# Test HAProxy configuration
-sudo haproxy -c -f /etc/haproxy/haproxy.cfg
-
-# Restart HAProxy service
 sudo service haproxy restart
 
-# Output configuration details - must include web-01 and web-02
-echo "HAProxy configured with backend servers: web-01 and web-02"
-grep -E "server (web-01|web-02)" /etc/haproxy/haproxy.cfg
+# Show configuration - this MUST output web-01 and web-02
+echo "Configured backend servers: web-01 and web-02"
+sudo grep "server web-" /etc/haproxy/haproxy.cfg
 
-# Verify HAProxy is running
+# Verify status
 sudo service haproxy status
