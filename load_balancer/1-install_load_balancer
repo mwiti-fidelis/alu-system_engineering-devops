@@ -1,36 +1,24 @@
 #!/usr/bin/env bash
-# Installs and configures HAProxy on a new Ubuntu server to load-balance two web servers
+# Installs and configures HAProxy on the lb-01 server
 
-WEB1_IP="13.221.234.18"
-WEB2_IP="3.83.134.172"
-#install HAProxy
-apt-get update -y
-apt-get install -y haproxy
+# Update package list and install HAProxy
+apt-get update
+apt-get -y install haproxy
 
-# Enable HAProxy to start on boot
-sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
+# Configure HAProxy with round-robin algorithm
+cat <<EOF >> /etc/haproxy/haproxy.cfg
 
-#load balancing configuration
-cat <<EOF > /etc/haproxy/haproxy.cfg
-global
-    daemon
-    maxconn 256
-
-defaults
-    mode http
-    timeout connect 5000ms
-    timeout client 50000ms
-    timeout server 50000ms
-
-frontend http_front
+frontend my_frontend
     bind *:80
-    default_backend web_servers
+    mode http
+    default_backend my_servers
 
-backend web_servers
+backend my_servers
+    mode http
     balance roundrobin
-    server web-01 $WEB1_IP:80 check
-    server web-02 $WEB2_IP:80 check
+    server 7032-web-01 13.221.234.18:80 check
+    server 7032-web-02 3.83.134.172:80 check
 EOF
 
-# Restart HAProxy to apply configuration
+# Restart HAProxy to apply the configuration
 service haproxy restart
