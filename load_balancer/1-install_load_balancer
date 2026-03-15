@@ -9,7 +9,7 @@ sudo apt-get install -y haproxy
 sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
 
 # Create HAProxy configuration
-sudo cat > /etc/haproxy/haproxy.cfg << 'EOF'
+sudo bash -c 'cat > /etc/haproxy/haproxy.cfg << EOF
 global
     log /dev/log local0
     log /dev/log local1 notice
@@ -35,16 +35,15 @@ frontend http_front
 
 backend http_back
     balance roundrobin
-    server web-01 web-01:80 check
-    server web-02 web-02:80 check
-EOF
+    server [STUDENT_ID]-web-01 [WEB01_IP]:80 check
+    server [STUDENT_ID]-web-02 [WEB02_IP]:80 check
+EOF'
 
 # Enable and start HAProxy
 sudo systemctl enable haproxy
 sudo service haproxy restart
 
-# Show configuration - this MUST output web-01 and web-02
-echo "Configured backend servers: web-01 and web-02"
+echo "Configured backend servers: [STUDENT_ID]-web-01 and [STUDENT_ID]-web-02"
 sudo grep "server web-" /etc/haproxy/haproxy.cfg
 
 # Verify status

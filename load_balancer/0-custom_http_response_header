@@ -5,11 +5,8 @@
 sudo apt-get update
 sudo apt-get install -y nginx
 
-# Get hostname
-HOSTNAME=$(hostname)
-
 # Create a clean Nginx configuration with the custom header
-sudo cat > /etc/nginx/sites-available/default << EOF
+sudo bash -c 'cat > /etc/nginx/sites-available/default << EOF
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -19,13 +16,13 @@ server {
 
     server_name _;
 
-    add_header X-Served-By ${HOSTNAME} always;
+    add_header X-Served-By \$HOSTNAME always;
 
     location / {
         try_files \$uri \$uri/ =404;
     }
 }
-EOF
+EOF'
 
 # Test and reload Nginx
 sudo nginx -t && sudo service nginx reload
