@@ -1,50 +1,38 @@
 #!/usr/bin/env bash
-# Script to install and configure HAProxy load balancer for web-01 and web-02
+# Installs and configures HAProxy on a new Ubuntu server to load-balance two web servers
 
-# Update and install HAProxy
-sudo apt-get update
-sudo apt-get install -y haproxy
+# Replace these IPs with your actual web servers
+WEB1_IP="13.221.234.18"
+WEB2_IP="3.83.134.172"
 
-# Backup original config
-sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
+# Update package list and install HAProxy
+apt-get update -y
+apt-get install -y haproxy
 
-# Create HAProxy configuration
-sudo bash -c 'cat > /etc/haproxy/haproxy.cfg << EOF
+# Enable HAProxy to start on boot
+sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
+
+# Overwrite HAProxy config with load balancing configuration
+cat <<EOF > /etc/haproxy/haproxy.cfg
 global
-    log /dev/log local0
-    log /dev/log local1 notice
-    chroot /var/lib/haproxy
-    stats socket /run/haproxy/admin.sock mode 660 level admin
-    stats timeout 30s
-    user haproxy
-    group haproxy
     daemon
+    maxconn 256
 
 defaults
-    log global
     mode http
-    option httplog
-    option dontlognull
-    timeout connect 5000
-    timeout client 50000
-    timeout server 50000
+    timeout connect 5000ms
+    timeout client 50000ms
+    timeout server 50000ms
 
 frontend http_front
     bind *:80
-    default_backend http_back
+    default_backend web_servers
 
-backend http_back
+backend web_servers
     balance roundrobin
-    server [STUDENT_ID]-web-01 [WEB01_IP]:80 check
-    server [STUDENT_ID]-web-02 [WEB02_IP]:80 check
-EOF'
+    server web-01 $WEB1_IP:80 check
+    server web-02 $WEB2_IP:80 check
+EOF
 
-# Enable and start HAProxy
-sudo systemctl enable haproxy
-sudo service haproxy restart
-
-echo "Configured backend servers: [STUDENT_ID]-web-01 and [STUDENT_ID]-web-02"
-sudo grep "server web-" /etc/haproxy/haproxy.cfg
-
-# Verify status
-sudo service haproxy status
+# Restart HAProxy to apply configuration
+service haproxy restart
