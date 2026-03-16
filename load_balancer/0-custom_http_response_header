@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # Install nginx and add custom header X-Served-By
 
+# Update packages and install nginx
 apt-get update -y
 apt-get install -y nginx
 
-# Add custom header to nginx configuration
-# The $hostname variable will be interpreted by nginx, not bash
-sed -i '/server_name _;/a\        add_header X-Served-By $hostname;' /etc/nginx/sites-available/default
+# Add the custom X-Served-By header with the hostname as the value
+# This targets the standard listening line in the default Nginx config
+sed -i "/listen 80 default_server;/a \ \ \ \ add_header X-Served-By \$hostname;" /etc/nginx/sites-available/default
 
+# Restart the service to apply changes
 service nginx restart
