@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# Install nginx and configure the riit
+# This script installs and configures Nginx
 
-apt update -y
-apt install -y nginx
-echo "Holberton School" > /var/www/html/index.html
-service nginx restart
+apt-get update -y
+apt-get install nginx -y
+
+echo "Holberton School for the win!" > /var/www/html/index.nginx-debian.html
+
+service nginx start
