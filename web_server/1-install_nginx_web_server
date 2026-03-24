@@ -1,12 +1,7 @@
 #!/usr/bin/env bash
-# Installs and configures Nginx on a new Ubuntu machine
+# Install nginx and configure the riit
 
-apt-get update -y
-apt-get install -y nginx
-
-# Set the default index page to return "Holberton School"
-# In your 1-install_nginx_web_server script
-echo "Holberton School" | sudo tee /var/www/html/index.html
-
-# Ensure Nginx is running
-service nginx start
+apt update -y
+apt install -y nginx
+echo "Holberton School" > /var/www/html/index.html
+service nginx restart

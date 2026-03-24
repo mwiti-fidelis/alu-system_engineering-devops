@@ -1,16 +1,26 @@
 #!/usr/bin/env bash
-# Configures Nginx to redirect /redirect_me with a 301 status code
+# Configure nginx to redirect '/redirect_me' to youtube using 301 status code
 
-# Update and install Nginx
-apt-get update -y
-apt-get install nginx -y
+sudo apt update -y
+sudo apt install -y nginx
 
-redirect_config="location = /redirect_me {
-    return 301 https://www.youtube.com/watch?v=QH2-TGU1wu4;
-}"
+config=\
+"server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+	root /var/www/html;
+	index index.html index.htm index.nginx-debian.html;
+	server_name _;
+	location / {
+		try_files \$uri \$uri/ =404;
+        }
+	location /redirect_me {
+		return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+	}
+}
+"
+echo "Holberton School for the win!" > /var/www/html/index.html
+echo "$config" > /etc/nginx/sites-available/default
 
-sed -i "/server_name _;/a \\
-    $redirect_config" /etc/nginx/sites-available/default
-
-# Test configuration and restart
-nginx -t && service nginx restart
+sudo nginx -t
+sudo service nginx restart

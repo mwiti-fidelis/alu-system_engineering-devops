@@ -1,19 +1,41 @@
 #!/usr/bin/env bash
-# Configures a custom 404 page
+# Configure nginx with a custom 404 page
 
-# Update and install Nginx
-apt-get update -y
+set -e
+
+apt-get update
 apt-get install -y nginx
 
-# Create the custom 404 page content with the mandatory string
-echo "Ceci n'est pas une page" > /var/www/html/custom_404.html
 
-# Configure Nginx to use the custom 404 page
-ERROR_PAGE_CONF="error_page 404 /custom_404.html;"
-LOCATION_CONF="location = /custom_404.html {\n\t\troot /var/www/html;\n\t\tinternal;\n\t}"
+echo "Holberton School" > /var/www/html/index.html
 
-sed -i "/server_name _;/a \    $ERROR_PAGE_CONF" /etc/nginx/sites-available/default
-sed -i "/error_page 404 \/custom_404.html;/a \    $LOCATION_CONF" /etc/nginx/sites-available/default
+echo "Ceci n'est pas une page" > /var/www/html/404.html
 
-# Restart service without using systemctl
+cat > /etc/nginx/sites-available/default << 'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html;
+
+    server_name _;
+
+    location /redirect_me {
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+    }
+
+    error_page 404 /404.html;
+
+    location = /404.html {
+        internal;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+EOF
+
+nginx -t
 service nginx restart
